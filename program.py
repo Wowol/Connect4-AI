@@ -6,6 +6,46 @@ from mcts import make_bot_move as mcts_bot
 
 def play():
     game = Game(7, 6)
+    
+    # game.make_move(1, 3)
+    # game.make_move(1, 4)
+    # game.make_move(1, 4)
+    
+    # game.make_move(1, 5)
+
+    # game.make_move(1, 5)
+
+    # game.make_move(2, 2)
+    # game.make_move(2, 3)
+    # game.make_move(2, 4)
+    # game.make_move(2, 4)
+    # game.make_move(2, 6)
+
+    # game.make_move(1, 3)
+    # game.make_move(2, 3)
+    
+    # game.make_move(2, 2)
+
+    # game.make_move(1, 2)
+    # game.make_move(1, 2)
+
+    # game.make_move(1, 3)
+    # game.make_move(1, 4)
+    # game.make_move(1, 4)
+    
+    # game.make_move(1, 5)
+
+    # game.make_move(1, 5)
+
+    # game.make_move(2, 3)
+    # game.make_move(2, 4)
+    # game.make_move(2, 4)
+    # game.make_move(2, 4)
+    # game.make_move(2, 6)
+
+    # game.make_move(1, 3)
+    # game.make_move(2, 3)
+
 
     while not game.check_win():
         mcts_bot(game, 1)

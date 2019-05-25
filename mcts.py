@@ -18,10 +18,33 @@ q = {}
 
 def monte_carlo_tree_search(game, player):
     q[tuple(map(tuple, game.board))] = (0, 1)
-    for i in range(10):
+    for i in range(1000):
         leaf, next_player, path = traverse(game, player)
         all_sum, all_times = expand(leaf, next_player, player)
-        backpropagate(path, all_sum, all_times)
+        backpropagate(path, all_sum, all_times, next_player, player)
+
+
+def kek(game, player):
+    for i in range(game.columns):
+        if game.make_move(player, i):
+            t = tuple(map(tuple, game.board))
+            if t in q and q[t][1]:
+                print(game, q[t])
+            game.revert_move(i)
+
+
+def test(game, player):
+    max_number = -1
+    max_column = -1
+    for i in range(game.columns):
+        if game.make_move(player, i):
+            t = tuple(map(tuple, game.board))
+            if t in q and q[t][1] > max_number:
+                max_number = q[t][1]
+                max_column = i
+            game.revert_move(i)
+
+    return max_column
 
 
 def make_bot_move(game, player):
@@ -52,20 +75,17 @@ def make_best_move(game, current_player):
 
             if t in q:
                 avg = q[t][0] / q[t][1]
-                ucb = avg + math.sqrt(parent_visited_times_log/q[t][1])
+                ucb = avg + 2 * math.sqrt(parent_visited_times_log/q[t][1])
                 if ucb > max_value:
                     max_value = ucb
                     max_column = i
 
-            # if t in q and q[t][0] / q[t][1] > max_value:
-            #     max_value = q[t][0] / q[t][1]
-            #     max_column = i
             game.revert_move(i)
 
     return max_column
 
 
-def backpropagate(path, all_sum, all_times):
+def backpropagate(path, all_sum, all_times, player, first_player):
     for x in path:
         q[x] = (q[x][0] + all_sum, q[x][1] + all_times)
 
@@ -94,11 +114,12 @@ def copy_game(game):
 
 
 def expand(game, player, first_player):
-    all_sum = 0
+    all_wins = 0
+    all_loses = 0
     all_times = 0
     for i in range(game.columns):
         if game.make_move(player, i):
-            sum_results, times = rollout(game, player, first_player)
+            sum_results, times = rollout(game, 3 - player, first_player)
             q[tuple(map(tuple, game.board))] = (sum_results, times)
             all_sum += sum_results
             all_times += times
@@ -106,7 +127,7 @@ def expand(game, player, first_player):
     return all_sum, all_times
 
 
-def rollout(oryginal_game, player, first_player, times=100):
+def rollout(oryginal_game, player, first_player, times=1):
     sum_results = 0
 
     w = oryginal_game.check_win()
@@ -135,8 +156,8 @@ def rollout(oryginal_game, player, first_player, times=100):
             if w:
                 if w == first_player:
                     sum_results += 1
-                elif w == 3 - first_player:
-                    sum_results -= 1
+                # elif w == 3 - first_player:
+                #     sum_results -= 1
                 break
 
     return sum_results, times

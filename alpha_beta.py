@@ -6,7 +6,7 @@ PLAYER_TWO = 2
 
 WIN = 4
 
-DEPTH = 3
+DEPTH = 1
 
 INFINITY = sys.maxsize
 MINUS_INFINITY = -INFINITY - 1
