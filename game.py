@@ -2,15 +2,15 @@
 PLAYER_ONE = 1
 PLAYER_TWO = 2
 
-DEPTH = 4
+DEPTH = 1
 
 WIN = 4
 
 
 class Game:
 
-    def __init__(self, columns, lines, board=None, current_heights=None):
-        self.moves = 0
+    def __init__(self, columns, lines, board=None, current_heights=None, moves = 0):
+        self.moves = moves
         self.columns = columns
         self.lines = lines
         self.board = board if board is not None else [
