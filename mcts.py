@@ -4,6 +4,8 @@ from random import randint
 import copy
 import numpy as np
 import math
+import time
+
 
 PLAYER_ONE = 1
 PLAYER_TWO = 2
@@ -13,47 +15,35 @@ MINUS_INFINITY = -INFINITY - 1
 
 WIN = 4
 
-TIMES = 1
+ROLLOUT_TIMES = 1
+EXPAND_TIME_SECONDS = 1
 
 q = {}
 
+def set_roullout_times(new):
+    global ROLLOUT_TIMES
+    ROLLOUT_TIMES = new
 
-def kek(game, player):
-    for i in range(game.columns):
-        if game.make_move(player, i):
-            t = tuple(map(tuple, game.board))
-            if t in q and q[t][1]:
-                print(game, q[t])
-            game.revert_move(i)
-
-
-def test(game, player):
-    max_number = -1
-    max_column = -1
-    for i in range(game.columns):
-        if game.make_move(player, i):
-            t = tuple(map(tuple, game.board))
-            if t in q and q[t][1] > max_number:
-                max_number = q[t][1]
-                max_column = i
-            game.revert_move(i)
-
-    return max_column
-
+def set_expand_time(new):
+    global EXPAND_TIME_SECONDS
+    EXPAND_TIME_SECONDS = new
 
 def monte_carlo_tree_search(game, player):
     q[tuple(map(tuple, game.board))] = (0, 1)
-    for i in range(10):
-        leaf, next_player, path = traverse(game, player)
-        all_wins, all_loses, all_draws, all_times = expand(
-            leaf, next_player, player)
-        backpropagate(path, all_wins, all_loses,
-                      all_times, player, next_player)
-
+    start = time.time()
+    while True:
+        for i in range(10):
+            leaf, next_player, path = traverse(game, player)
+            all_wins, all_loses, all_draws, all_times = expand(
+                leaf, next_player, player)
+            backpropagate(path, all_wins, all_loses,
+                        all_times, player, next_player)
+        if time.time() - start > EXPAND_TIME_SECONDS:
+            break
 
 def backpropagate(path, all_wins, all_loses, all_times, first_player, last_player):
     for i in range(len(path)):
-        if i % 2:  # != int(last_player == first_player):
+        if i % 2:
             k = all_wins
         else:
             k = all_loses
@@ -108,7 +98,7 @@ def traverse(oryginal_game, player):
         path.append(tuple(map(tuple, game.board)))
         best_column = make_best_move(game, current_player)
 
-        if best_column == -1:  # or game.check_win():
+        if best_column == -1:
             return game, current_player, path
 
         if best_column != -1:
@@ -129,14 +119,14 @@ def expand(game, player, first_player):
 
     w = game.check_win()
     if w == first_player:
-        return TIMES*7, 0, 0, TIMES*7
+        return ROLLOUT_TIMES*7, 0, 0, ROLLOUT_TIMES*7
     elif w == 3 - first_player:
-        return 0, TIMES*7, 0, TIMES*7
+        return 0, ROLLOUT_TIMES*7, 0, ROLLOUT_TIMES*7
 
     for i in range(game.columns):
         if game.make_move(player, i):
             sum_wins, sum_loses, sum_draws, times = rollout(
-                game, 3 - player, first_player)
+                game, 3 - player, first_player, ROLLOUT_TIMES)
             q[tuple(map(tuple, game.board))] = (sum_wins, times)
             all_wins += sum_wins
             all_loses += sum_loses
@@ -146,7 +136,7 @@ def expand(game, player, first_player):
     return all_wins, all_loses, all_draw, all_times
 
 
-def rollout(oryginal_game, player, first_player, times=100):
+def rollout(oryginal_game, player, first_player, times):
     sum_wins = 0
     sum_draws = 0
     sum_loses = 0
@@ -161,7 +151,6 @@ def rollout(oryginal_game, player, first_player, times=100):
             return 0, 0, times, times
 
     for i in range(times):
-        # print("--------------------------------------------")
         current_player = player
 
         game = copy_game(oryginal_game)
@@ -173,7 +162,6 @@ def rollout(oryginal_game, player, first_player, times=100):
                     break
             current_player = 3-current_player
             w = game.check_win()
-            # print(game)
             if w:
                 if w == first_player:
                     sum_wins += 1
@@ -184,29 +172,3 @@ def rollout(oryginal_game, player, first_player, times=100):
                 break
 
     return sum_wins, sum_loses, sum_draws, times
-
-
-# g = Game(7, 6)
-
-# # print(monte_carlo_tree_search(g, 1))
-
-# while(True):
-#     print(make_bot_move(g, 1))
-
-#     print(g)
-
-#     print(make_bot_move(g, 2))
-#     print(g)
-
-
-# print(make_bot_move(g, 1))
-# print(g)
-
-
-# print(make_bot_move(g, 2))
-
-
-# print(g)
-
-# for k, v in q.items():
-#     print(k, v)

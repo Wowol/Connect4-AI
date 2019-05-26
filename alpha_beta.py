@@ -20,6 +20,11 @@ results = [
 ]
 
 
+def set_depth(depth):
+    global DEPTH
+    DEPTH = depth
+
+
 def _get_result(l, player):
     global results
     my_result = l.count(player)
@@ -68,7 +73,7 @@ def evaluateContent(game, player):
     return _get_line_result(game, player) + _get_columns_result(game, player) + _get_diagonal_result(game, True, player) + _get_diagonal_result(game, False, player)
 
 
-def alpha_beta(game, maximizing_player, player, last_move,  depth=DEPTH, alpha=MINUS_INFINITY, beta=INFINITY):
+def alpha_beta(game, maximizing_player, player, last_move, depth, alpha=MINUS_INFINITY, beta=INFINITY):
     value = 0
 
     if depth == 0 or (game.moves >= 8 and game.check_win()):
@@ -108,7 +113,7 @@ def make_bot_move(game, player):
     for i in range(game.columns):
         if game.make_move(player, i):
             values[i] = alpha_beta(
-                game, False, 3-player, i)
+                game, False, 3-player, i, depth=DEPTH)
 
     best_move = max(values, key=values.get)
     game.make_move(player, best_move)
